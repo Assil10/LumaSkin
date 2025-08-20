@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -24,119 +24,36 @@ interface Product {
   ingredients: string[]
 }
 
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Gentle Foaming Cleanser',
-    brand: 'CeraVe',
-    price: 12.99,
-    rating: 4.5,
-    reviews: 2847,
-    category: 'Cleanser',
-    skinType: ['Oily', 'Combination', 'Normal'],
-    concerns: ['Acne', 'Oily Skin'],
-    image: '/placeholder.svg?height=200&width=200',
-    description: 'Gentle foaming cleanser with ceramides and hyaluronic acid',
-    ingredients: ['Ceramides', 'Hyaluronic Acid', 'Niacinamide']
-  },
-  {
-    id: '2',
-    name: 'Niacinamide 10% + Zinc 1%',
-    brand: 'The Ordinary',
-    price: 7.20,
-    rating: 4.3,
-    reviews: 5632,
-    category: 'Serum',
-    skinType: ['Oily', 'Combination'],
-    concerns: ['Acne', 'Oily Skin', 'Pigmentation'],
-    image: '/placeholder.svg?height=200&width=200',
-    description: 'High-strength vitamin and mineral blemish formula',
-    ingredients: ['Niacinamide', 'Zinc PCA']
-  },
-  {
-    id: '3',
-    name: 'Daily Facial Moisturizer SPF 30',
-    brand: 'Neutrogena',
-    price: 13.47,
-    rating: 4.4,
-    reviews: 1923,
-    category: 'Moisturizer',
-    skinType: ['All Types'],
-    concerns: ['Sun Protection', 'Hydration'],
-    image: '/placeholder.svg?height=200&width=200',
-    description: 'Oil-free moisturizer with broad spectrum SPF 30',
-    ingredients: ['Avobenzone', 'Octinoxate', 'Glycerin']
-  },
-  {
-    id: '4',
-    name: 'Salicylic Acid 2% Solution',
-    brand: 'The Ordinary',
-    price: 8.10,
-    rating: 4.2,
-    reviews: 3456,
-    category: 'Treatment',
-    skinType: ['Oily', 'Combination'],
-    concerns: ['Acne', 'Blackheads'],
-    image: '/placeholder.svg?height=200&width=200',
-    description: 'Direct acid exfoliant for blemish-prone skin',
-    ingredients: ['Salicylic Acid', 'Witch Hazel']
-  },
-  {
-    id: '5',
-    name: 'Hyaluronic Acid 2% + B5',
-    brand: 'The Ordinary',
-    price: 9.90,
-    rating: 4.6,
-    reviews: 4521,
-    category: 'Serum',
-    skinType: ['All Types'],
-    concerns: ['Hydration', 'Fine Lines'],
-    image: '/placeholder.svg?height=200&width=200',
-    description: 'Multi-depth hydration serum',
-    ingredients: ['Hyaluronic Acid', 'Vitamin B5']
-  },
-  {
-    id: '6',
-    name: 'Retinol 0.5% in Squalane',
-    brand: 'The Ordinary',
-    price: 10.90,
-    rating: 4.1,
-    reviews: 2134,
-    category: 'Treatment',
-    skinType: ['Normal', 'Dry'],
-    concerns: ['Fine Lines', 'Pigmentation'],
-    image: '/placeholder.svg?height=200&width=200',
-    description: 'Intermediate strength retinol serum',
-    ingredients: ['Retinol', 'Squalane']
-  }
-]
-
 export default function ProductsPage() {
-  const [products, setProducts] = useState(mockProducts)
+  const [products, setProducts] = useState<Product[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedSkinType, setSelectedSkinType] = useState('all')
   const [selectedConcern, setSelectedConcern] = useState('all')
   const [priceRange, setPriceRange] = useState('all')
 
+  const fetchProducts = async () => {
+    const params = new URLSearchParams()
+    if (searchTerm) params.set('q', searchTerm)
+    if (selectedCategory) params.set('category', selectedCategory)
+    if (selectedSkinType) params.set('skinType', selectedSkinType)
+    if (selectedConcern) params.set('concern', selectedConcern)
+    if (priceRange) params.set('price', priceRange)
+    const res = await fetch(`/api/products?${params.toString()}`)
+    const data = await res.json()
+    setProducts(data.products || [])
+  }
+
+  useEffect(() => {
+    fetchProducts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, selectedCategory, selectedSkinType, selectedConcern, priceRange])
+
   const categories = ['all', 'Cleanser', 'Serum', 'Moisturizer', 'Treatment']
   const skinTypes = ['all', 'Oily', 'Dry', 'Combination', 'Normal', 'Sensitive']
   const concerns = ['all', 'Acne', 'Oily Skin', 'Pigmentation', 'Fine Lines', 'Hydration', 'Sun Protection']
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.brand.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory
-    const matchesSkinType = selectedSkinType === 'all' || product.skinType.includes(selectedSkinType)
-    const matchesConcern = selectedConcern === 'all' || product.concerns.includes(selectedConcern)
-    
-    let matchesPrice = true
-    if (priceRange === 'under-10') matchesPrice = product.price < 10
-    else if (priceRange === '10-20') matchesPrice = product.price >= 10 && product.price <= 20
-    else if (priceRange === 'over-20') matchesPrice = product.price > 20
-
-    return matchesSearch && matchesCategory && matchesSkinType && matchesConcern && matchesPrice
-  })
+  const filteredProducts = products
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 py-8">
@@ -281,7 +198,7 @@ export default function ProductsPage() {
 
                 <div className="flex items-center justify-between pt-4">
                   <span className="text-2xl font-bold text-purple-600">
-                    ${product.price}
+                     ${product.price}
                   </span>
                   <Button className="bg-purple-600 hover:bg-purple-700">
                     <ShoppingCart className="mr-2 h-4 w-4" />
