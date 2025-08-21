@@ -22,8 +22,11 @@ export default function HomePage() {
             <Link href="#features" className="text-gray-600 hover:text-purple-600 transition-colors">
               Features
             </Link>
-            <Link href="#how-it-works" className="text-gray-600 hover:text-purple-600 transition-colors">
-              How it Works
+            <Link href="/ai-skin-analysis" className="text-gray-600 hover:text-purple-600 transition-colors">
+              AI Analysis
+            </Link>
+            <Link href="/products" className="text-gray-600 hover:text-purple-600 transition-colors">
+              Products
             </Link>
             <Link href="/profile" className="text-gray-600 hover:text-purple-600 transition-colors">
               Profile
@@ -33,7 +36,7 @@ export default function HomePage() {
             <Link href="/auth">
               <Button variant="outline">Sign In</Button>
             </Link>
-            <Link href="/analyze">
+            <Link href="/ai-skin-analysis">
               <Button className="bg-purple-600 hover:bg-purple-700">
                 Start Analysis
               </Button>
@@ -56,7 +59,7 @@ export default function HomePage() {
             product recommendations. Track your skin health journey with professional insights.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/analyze">
+            <Link href="/ai-skin-analysis">
               <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-4">
                 <Camera className="mr-2 h-5 w-5" />
                 Analyze Your Skin
