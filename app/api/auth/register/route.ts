@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { connectDB } from '@/lib/mongodb'
-import User from '@/lib/models/User'
+import { supabase } from '@/lib/supabase-client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,57 +20,66 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Connect to MongoDB
-    await connectDB()
+    // Create user with Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name: name,
+        }
+      }
+    })
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email })
-    if (existingUser) {
+    if (error) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
+        { error: error.message || 'Registration failed' },
+        { status: 400 }
       )
     }
 
-    // Hash password
-    const saltRounds = 12
-    const hashedPassword = await bcrypt.hash(password, saltRounds)
+    if (!data.user) {
+      return NextResponse.json(
+        { error: 'User creation failed' },
+        { status: 500 }
+      )
+    }
 
-    // Create new user
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-      avatar: null,
-      emailVerified: false,
-      resetPasswordToken: null,
-      resetPasswordExpires: null
-    })
+    // Create profile in profiles table
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert([
+        {
+          id: data.user.id,
+          name: name,
+          email: email,
+          avatar: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ])
 
-    await user.save()
+    if (profileError) {
+      console.error('Profile creation error:', profileError)
+      // Don't fail the registration if profile creation fails
+    }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET || 'fallback-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    )
-
-    // Remove password from response
+    // Create user response in the same format as before
     const userResponse = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt
+      id: data.user.id,
+      name: name,
+      email: data.user.email,
+      avatar: null,
+      emailVerified: false, // Will be true after email confirmation
+      createdAt: data.user.created_at
     }
 
     return NextResponse.json(
       {
-        message: 'User registered successfully',
+        message: 'Registration successful! Please check your email and click the confirmation link to activate your account.',
         user: userResponse,
-        token
+        token: data.session?.access_token || null,
+        requiresEmailConfirmation: true
       },
       { status: 201 }
     )

@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { connectDB } from '@/lib/mongodb'
-import User from '@/lib/models/User'
+import { supabase } from '@/lib/supabase-client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,61 +13,65 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Connect to MongoDB
-    await connectDB()
+    // Authenticate with Supabase
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-    // Find user by email
-    const user = await User.findOne({ email }).select('+password')
-    if (!user) {
+    if (error) {
+      // Handle specific error cases
+      if (error.message.includes('Email not confirmed')) {
+        return NextResponse.json(
+          { error: 'Please check your email and click the confirmation link before signing in. Check your spam folder if you don\'t see it.' },
+          { status: 401 }
+        )
+      }
+      
       return NextResponse.json(
-        { error: 'Invalid email or password' },
+        { error: error.message || 'Invalid email or password' },
         { status: 401 }
       )
     }
 
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password)
-    if (!isPasswordValid) {
+    if (!data.user || !data.session) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
+        { error: 'Authentication failed' },
         { status: 401 }
       )
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET || 'fallback-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    )
+    // Check if email is confirmed
+    if (!data.user.email_confirmed_at) {
+      return NextResponse.json(
+        { error: 'Please confirm your email address before signing in. Check your inbox and spam folder.' },
+        { status: 401 }
+      )
+    }
 
-    // Generate refresh token
-    const refreshToken = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' }
-    )
+    // Get user profile from profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', data.user.id)
+      .single()
 
-    // Update user's refresh token
-    user.refreshToken = refreshToken
-    await user.save()
-
-    // Remove password from response
+    // Create user response in the same format as before
     const userResponse = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt
+      id: data.user.id,
+      name: profile?.name || data.user.user_metadata?.name || 'User',
+      email: data.user.email,
+      avatar: profile?.avatar || data.user.user_metadata?.avatar || null,
+      emailVerified: data.user.email_confirmed_at ? true : false,
+      createdAt: data.user.created_at
     }
 
     return NextResponse.json(
       {
         message: 'Login successful',
         user: userResponse,
-        token,
-        refreshToken
+        token: data.session.access_token,
+        refreshToken: data.session.refresh_token
       },
       { status: 200 }
     )
