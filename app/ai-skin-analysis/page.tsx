@@ -151,204 +151,205 @@ export default function AISkinAnalysisPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Image Upload & Camera Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Camera className="h-5 w-5" />
-              Upload or Capture Photo
-            </CardTitle>
-            <CardDescription>
-              Take a clear photo of your skin area or upload an existing image
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Camera Capture */}
-            <div className="space-y-4">
-              <Button onClick={startCamera} variant="outline" className="w-full">
-                <Camera className="h-4 w-4 mr-2" />
-                Start Camera
-              </Button>
-              
-              <div className="relative">
-                <video
-                  ref={videoRef}
-                  className="w-full h-64 bg-gray-100 rounded-lg"
-                  autoPlay
-                  playsInline
-                  muted
-                />
-                <canvas ref={canvasRef} className="hidden" />
-                <Button
-                  onClick={capturePhoto}
-                  className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
-                  size="sm"
-                >
-                  Capture Photo
-                </Button>
-              </div>
-            </div>
-
-            {/* File Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="image-upload">Or upload an image</Label>
-              <Input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                ref={fileInputRef}
-                className="cursor-pointer"
-              />
-            </div>
-
-            {/* Image Preview */}
-            {imagePreview && (
+          {/* Image Upload & Camera Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="h-5 w-5" />
+                Upload or Capture Photo
+              </CardTitle>
+              <CardDescription>
+                Take a clear photo of your skin area or upload an existing image
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Camera Capture */}
               <div className="space-y-4">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-                <Button
-                  onClick={analyzeSkin}
-                  disabled={isAnalyzing}
-                  className="w-full"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Analyze Skin
-                    </>
-                  )}
+                <Button onClick={startCamera} variant="outline" className="w-full">
+                  <Camera className="h-4 w-4 mr-2" />
+                  Start Camera
                 </Button>
+                
+                <div className="relative">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-64 bg-gray-100 rounded-lg"
+                    autoPlay
+                    playsInline
+                    muted
+                  />
+                  <canvas ref={canvasRef} className="hidden" />
+                  <Button
+                    onClick={capturePhoto}
+                    className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
+                    size="sm"
+                  >
+                    Capture Photo
+                  </Button>
+                </div>
               </div>
+
+              {/* File Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="image-upload">Or upload an image</Label>
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  ref={fileInputRef}
+                  className="cursor-pointer"
+                />
+              </div>
+
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="space-y-4">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                  <Button
+                    onClick={analyzeSkin}
+                    disabled={isAnalyzing}
+                    className="w-full"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Analyze Skin
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Analysis Results */}
+          <div className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
-          </CardContent>
-        </Card>
 
-        {/* Analysis Results */}
-        <div className="space-y-6">
-          {error && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            {analysisResult && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    Analysis Results
+                  </CardTitle>
+                  <CardDescription>
+                    AI-powered skin condition insights and recommendations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue="predictions" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="predictions">Predictions</TabsTrigger>
+                      <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+                    </TabsList>
 
-          {analysisResult && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  Analysis Results
-                </CardTitle>
-                <CardDescription>
-                  AI-powered skin condition insights and recommendations
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="predictions" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="predictions">Predictions</TabsTrigger>
-                    <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="predictions" className="space-y-4">
-                    {analysisResult.predictions.map((prediction, index) => (
-                      <Card key={index} className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge className={getConditionColor(prediction.label)}>
-                            {formatConditionName(prediction.label)}
-                          </Badge>
-                          <span className="text-sm text-gray-600">
-                            {Math.round(prediction.confidence * 100)}% confidence
-                          </span>
-                        </div>
-                        <Progress value={prediction.confidence * 100} className="mb-2" />
-                      </Card>
-                    ))}
-                  </TabsContent>
-
-                  <TabsContent value="recommendations" className="space-y-4">
-                    {analysisResult.predictions[0]?.recommendation && (
-                      <div className="space-y-4">
-                        {/* Skin Care Guidance */}
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-lg">Skin Care Guidance</CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                            <div>
-                              <Label className="font-semibold">Summary:</Label>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {analysisResult.predictions[0].recommendation.guidance.summary}
-                              </p>
-                            </div>
-                            <div>
-                              <Label className="font-semibold">Daily Routine:</Label>
-                              <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
-                                {analysisResult.predictions[0].recommendation.guidance.routine}
-                              </p>
-                            </div>
-                            <div>
-                              <Label className="font-semibold">Key Ingredients:</Label>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {analysisResult.predictions[0].recommendation.guidance.key_ingredients}
-                              </p>
-                            </div>
-                          </CardContent>
+                    <TabsContent value="predictions" className="space-y-4">
+                      {analysisResult.predictions.map((prediction, index) => (
+                        <Card key={index} className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge className={getConditionColor(prediction.label)}>
+                              {formatConditionName(prediction.label)}
+                            </Badge>
+                            <span className="text-sm text-gray-600">
+                              {Math.round(prediction.confidence * 100)}% confidence
+                            </span>
+                          </div>
+                          <Progress value={prediction.confidence * 100} className="mb-2" />
                         </Card>
+                      ))}
+                    </TabsContent>
 
-                        {/* Product Recommendations */}
-                        {analysisResult.predictions[0].recommendation.products && (
+                    <TabsContent value="recommendations" className="space-y-4">
+                      {analysisResult.predictions[0]?.recommendation && (
+                        <div className="space-y-4">
+                          {/* Skin Care Guidance */}
                           <Card>
                             <CardHeader>
-                              <CardTitle className="text-lg">Recommended Products</CardTitle>
+                              <CardTitle className="text-lg">Skin Care Guidance</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                              <div className="space-y-3">
-                                {analysisResult.predictions[0].recommendation.products.map((product) => (
-                                  <div key={product.id} className="border rounded-lg p-3">
-                                    <h4 className="font-semibold">{product.name}</h4>
-                                    <p className="text-sm text-gray-600">{product.brand}</p>
-                                    <p className="text-sm text-gray-600">${product.price}</p>
-                                    <div className="mt-2">
-                                      <Label className="text-xs font-semibold">Key Ingredients:</Label>
-                                      <div className="flex flex-wrap gap-1 mt-1">
-                                        {product.ingredients.slice(0, 5).map((ingredient, idx) => (
-                                          <Badge key={idx} variant="secondary" className="text-xs">
-                                            {ingredient}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
+                            <CardContent className="space-y-3">
+                              <div>
+                                <Label className="font-semibold">Summary:</Label>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {analysisResult.predictions[0].recommendation.guidance.summary}
+                                </p>
+                              </div>
+                              <div>
+                                <Label className="font-semibold">Daily Routine:</Label>
+                                <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
+                                  {analysisResult.predictions[0].recommendation.guidance.routine}
+                                </p>
+                              </div>
+                              <div>
+                                <Label className="font-semibold">Key Ingredients:</Label>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {analysisResult.predictions[0].recommendation.guidance.key_ingredients}
+                                </p>
                               </div>
                             </CardContent>
                           </Card>
-                        )}
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
 
-                {/* Disclaimer */}
-                <Alert className="mt-4">
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    {analysisResult.disclaimer}
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-          )}
+                          {/* Product Recommendations */}
+                          {analysisResult.predictions[0].recommendation.products && (
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-lg">Recommended Products</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-3">
+                                  {analysisResult.predictions[0].recommendation.products.map((product) => (
+                                    <div key={product.id} className="border rounded-lg p-3">
+                                      <h4 className="font-semibold">{product.name}</h4>
+                                      <p className="text-sm text-gray-600">{product.brand}</p>
+                                      <p className="text-sm text-gray-600">${product.price}</p>
+                                      <div className="mt-2">
+                                        <Label className="text-xs font-semibold">Key Ingredients:</Label>
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                          {product.ingredients.slice(0, 5).map((ingredient, idx) => (
+                                            <Badge key={idx} variant="secondary" className="text-xs">
+                                              {ingredient}
+                                            </Badge>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
+
+                  {/* Disclaimer */}
+                  <Alert className="mt-4">
+                    <Info className="h-4 w-4" />
+                    <AlertDescription>
+                      {analysisResult.disclaimer}
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>
