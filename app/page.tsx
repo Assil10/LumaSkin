@@ -2,48 +2,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Camera, Sparkles, ShoppingBag, User, TrendingUp } from 'lucide-react'
 import Link from "next/link"
+import Navigation from "@/components/navigation"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-full opacity-90"></div>
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full"></div>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">LumaSkin</span>
-          </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="#features" className="text-gray-600 hover:text-purple-600 transition-colors">
-              Features
-            </Link>
-            <Link href="/ai-skin-analysis" className="text-gray-600 hover:text-purple-600 transition-colors">
-              AI Analysis
-            </Link>
-            <Link href="/products" className="text-gray-600 hover:text-purple-600 transition-colors">
-              Products
-            </Link>
-            <Link href="/profile" className="text-gray-600 hover:text-purple-600 transition-colors">
-              Profile
-            </Link>
-          </nav>
-          <div className="flex items-center space-x-4">
-            <Link href="/auth">
-              <Button variant="outline">Sign In</Button>
-            </Link>
-            <Link href="/ai-skin-analysis">
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                Start Analysis
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="py-20 px-4">

@@ -10,6 +10,7 @@ import { ArrowLeft, User, Calendar, TrendingUp, Camera, Star, Award, LogOut } fr
 import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/navigation"
+import Navigation from "@/components/navigation"
 
 interface ScanHistory {
   id: string
@@ -182,30 +183,16 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 py-8">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/">
-            <Button variant="ghost">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to LumaSkin
-            </Button>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <Navigation />
+      <div className="container mx-auto px-4 max-w-6xl py-8">
+        <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900">
             Your LumaSkin Profile
           </h1>
-          <div className="flex items-center space-x-3">
-            <Link href="/ai-skin-analysis">
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                <Camera className="mr-2 h-4 w-4" />
-                New Scan
-              </Button>
-            </Link>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
-          </div>
+          <p className="text-lg text-gray-600 mt-2">
+            Track your skin health journey and view your analysis history
+          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

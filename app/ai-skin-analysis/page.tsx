@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Upload, Camera, AlertTriangle, CheckCircle, Info } from 'lucide-react'
+import Navigation from '@/components/navigation'
 
 interface SkinCondition {
   label: string
@@ -137,11 +138,13 @@ export default function AISkinAnalysisPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          AI Skin Analysis
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <Navigation />
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            AI Skin Analysis
+          </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
           Get personalized skin condition insights and product recommendations powered by advanced AI
         </p>

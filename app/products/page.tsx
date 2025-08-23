@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Star, ShoppingCart, Filter, Search } from 'lucide-react'
 import Link from "next/link"
+import Navigation from "@/components/navigation"
 
 interface Product {
   id: string
@@ -56,19 +57,13 @@ export default function ProductsPage() {
   const filteredProducts = products
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/">
-            <Button variant="ghost">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to LumaSkin
-            </Button>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <Navigation />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900">
             LumaSkin Products
           </h1>
-          <div className="w-24" /> {/* Spacer for centering */}
         </div>
 
         {/* Filters */}
