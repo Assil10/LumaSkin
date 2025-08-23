@@ -85,3 +85,14 @@ jspm_packages/
 # Temporary folders
 tmp/
 temp/
+
+# AI Service
+ai-service/venv/
+ai-service/__pycache__/
+ai-service/*.pyc
+ai-service/*.pyo
+ai-service/*.pyd
+ai-service/.Python
+ai-service/env/
+ai-service/pip-log.txt
+ai-service/pip-delete-this-directory.txt
