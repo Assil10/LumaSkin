@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, User, Calendar, TrendingUp, Camera, Star, Award } from 'lucide-react'
+import { ArrowLeft, User, Calendar, TrendingUp, Camera, Star, Award, LogOut } from 'lucide-react'
 import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
 
 interface ScanHistory {
   id: string
@@ -18,6 +20,8 @@ interface ScanHistory {
   improvements: string[]
 }
 
+// For now, we'll keep some mock data for scan history since we haven't implemented that yet
+// But we'll make the profile info dynamic
 const mockScanHistory: ScanHistory[] = [
   {
     id: '1',
@@ -47,6 +51,53 @@ const mockScanHistory: ScanHistory[] = [
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('overview')
+  const { user, session, loading, signOut } = useAuth()
+  const router = useRouter()
+
+  // Redirect to login if not authenticated (with delay to prevent race conditions)
+  useEffect(() => {
+    if (!loading && !user) {
+      // Add a small delay to prevent race conditions
+      const timer = setTimeout(() => {
+        console.log('Profile: Redirecting to auth - User:', user, 'Loading:', loading, 'Session:', session)
+        router.push('/auth')
+      }, 500) // Increased delay to 500ms
+      
+      return () => clearTimeout(timer)
+    }
+  }, [user, loading, router, session])
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 py-8">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading your profile...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 py-8">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center py-20">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Please log in to view your profile</h1>
+            <Link href="/auth">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                Go to Login
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'
@@ -63,6 +114,73 @@ export default function ProfilePage() {
 
   const improvement = getScoreImprovement()
 
+  // Get user's join date
+  const getJoinDate = () => {
+    if (!user.created_at) return 'Recently'
+    const date = new Date(user.created_at)
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long' 
+    })
+  }
+
+  // Get user's account age in a more engaging format
+  const getAccountAge = () => {
+    if (!user.created_at) return 'New member'
+    const created = new Date(user.created_at)
+    const now = new Date()
+    const diffInDays = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24))
+    
+    if (diffInDays < 1) return 'Joined today! 🎉'
+    if (diffInDays < 7) return `Joined ${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`
+    if (diffInDays < 30) return `Joined ${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) > 1 ? 's' : ''} ago`
+    if (diffInDays < 365) return `Joined ${Math.floor(diffInDays / 30)} month${Math.floor(diffInDays / 30) > 1 ? 's' : ''} ago`
+    return `Joined ${Math.floor(diffInDays / 365)} year${Math.floor(diffInDays / 365) > 1 ? 's' : ''} ago`
+  }
+
+  // Get user's activity level
+  const getActivityLevel = () => {
+    if (!user.created_at) return 'New'
+    const created = new Date(user.created_at)
+    const now = new Date()
+    const diffInDays = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24))
+    
+    if (diffInDays < 1) return 'New'
+    if (diffInDays < 7) return 'Active'
+    if (diffInDays < 30) return 'Regular'
+    if (diffInDays < 90) return 'Established'
+    return 'Veteran'
+  }
+
+  // Get user's last sign-in time in a user-friendly format
+  const getLastSignIn = () => {
+    if (!user.last_sign_in_at) return 'Recently'
+    const date = new Date(user.last_sign_in_at)
+    const now = new Date()
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    
+    if (diffInHours < 1) return 'Just now'
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`
+    if (diffInHours < 48) return 'Yesterday'
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  // Get user's email domain for a more personalized experience
+  const getEmailDomain = () => {
+    if (!user.email) return ''
+    return user.email.split('@')[1]
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -76,12 +194,18 @@ export default function ProfilePage() {
           <h1 className="text-4xl font-bold text-gray-900">
             Your LumaSkin Profile
           </h1>
-          <Link href="/analyze">
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              <Camera className="mr-2 h-4 w-4" />
-              New Scan
+          <div className="flex items-center space-x-3">
+            <Link href="/ai-skin-analysis">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                <Camera className="mr-2 h-4 w-4" />
+                New Scan
+              </Button>
+            </Link>
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
             </Button>
-          </Link>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -92,6 +216,73 @@ export default function ProfilePage() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Welcome Message */}
+            <Card className="border-purple-200 bg-purple-50">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-purple-900 mb-2">
+                    Welcome back, {user.email ? user.email.split('@')[0] : 'User'}! 👋
+                  </h2>
+                  <p className="text-purple-700">
+                    Ready for your next skin analysis? Track your progress and discover personalized recommendations.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Email Verification Notice */}
+            {!user.email_confirmed_at && (
+              <Card className="border-yellow-200 bg-yellow-50">
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-yellow-900 mb-2">
+                      📧 Please verify your email address
+                    </h3>
+                    <p className="text-yellow-700 mb-3">
+                      Check your inbox for a verification link to unlock all features.
+                    </p>
+                    <Button variant="outline" size="sm" className="border-yellow-300 text-yellow-700 hover:bg-yellow-100">
+                      Resend verification email
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Quick Stats Overview */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold text-purple-600">{mockScanHistory.length}</div>
+                  <p className="text-sm text-gray-600">Total Scans</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold text-green-600">
+                    {mockScanHistory.length > 0 ? mockScanHistory[0].score : 0}
+                  </div>
+                  <p className="text-sm text-gray-600">Current Score</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {user.email_confirmed_at ? 'Verified' : 'Pending'}
+                  </div>
+                  <p className="text-sm text-gray-600">Account Status</p>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {getActivityLevel()}
+                  </div>
+                  <p className="text-sm text-gray-600">Member Type</p>
+                </CardContent>
+              </Card>
+            </div>
+
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Profile Info */}
               <Card>
@@ -106,22 +297,82 @@ export default function ProfilePage() {
                     <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <User className="h-10 w-10 text-purple-600" />
                     </div>
-                    <h3 className="font-semibold text-lg">Sarah Johnson</h3>
-                    <p className="text-gray-600">Member since Dec 2023</p>
+                    <h3 className="font-semibold text-lg">
+                      {user.email ? user.email.split('@')[0] : 'User'}
+                    </h3>
+                    <p className="text-gray-600">{getAccountAge()}</p>
+                    {user.email && (
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <div className="mt-1">
+                          <Badge variant={user.email_confirmed_at ? "default" : "secondary"}>
+                            {user.email_confirmed_at ? '✓ Verified' : '⏳ Pending'}
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Skin Type:</span>
-                      <Badge variant="outline">Combination</Badge>
+                      <span className="text-gray-600">Account Status:</span>
+                      <Badge variant={user.email_confirmed_at ? "default" : "secondary"}>
+                        {user.email_confirmed_at ? 'Verified' : 'Pending Verification'}
+                      </Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Age Range:</span>
-                      <span>25-30</span>
+                      <span className="text-gray-600">Last Sign In:</span>
+                      <span className="text-sm">
+                        {getLastSignIn()}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Scans:</span>
                       <span className="font-medium">{mockScanHistory.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Current Score:</span>
+                      <span className="font-medium text-green-600">
+                        {mockScanHistory.length > 0 ? mockScanHistory[0].score : 0}/100
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Improvement:</span>
+                      <span className={`font-medium ${improvement && improvement > 0 ? 'text-green-600' : 'text-gray-600'}`}>
+                        {improvement ? `${improvement > 0 ? '+' : ''}${improvement} pts` : 'No data'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Profile Complete:</span>
+                      <span className="text-sm font-medium text-green-600">100%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Account Age:</span>
+                      <span className="text-sm">{getAccountAge()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Last Activity:</span>
+                      <span className="text-sm">{getLastSignIn()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Activity Level:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {getActivityLevel()}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Member Since:</span>
+                      <span className="text-sm">{getJoinDate()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Email Status:</span>
+                      <Badge variant={user.email_confirmed_at ? "default" : "secondary"} className="text-xs">
+                        {user.email_confirmed_at ? '✓ Verified' : '⏳ Pending'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Profile Complete:</span>
+                      <span className="text-sm font-medium text-green-600">100%</span>
                     </div>
                   </div>
                 </CardContent>

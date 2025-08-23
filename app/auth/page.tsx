@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,12 +9,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
+  const { user, signIn, signUp } = useAuth()
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      console.log('Auth: User found, redirecting to profile:', user)
+      router.push('/profile')
+    }
+  }, [user, router])
 
   // Sign In Form State
   const [signInData, setSignInData] = useState({
@@ -35,29 +45,18 @@ export default function AuthPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(signInData),
-      })
+      console.log('Auth: Attempting sign in with:', signInData.email)
+      const { error } = await signIn(signInData.email, signInData.password)
 
-      const data = await response.json()
-
-      if (response.ok) {
-        // Store tokens in localStorage
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('refreshToken', data.refreshToken)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        
-        // Redirect to profile
-        router.push('/profile')
+      if (error) {
+        console.error('Auth: Sign in error:', error)
+        alert(error.message || 'Login failed')
       } else {
-        alert(data.error || 'Login failed')
+        console.log('Auth: Sign in successful, waiting for user state update...')
+        // Redirect will happen automatically via useEffect when user state changes
       }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Auth: Login error:', error)
       alert('An error occurred during login')
     } finally {
       setIsLoading(false)
@@ -80,30 +79,13 @@ export default function AuthPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: signUpData.name,
-          email: signUpData.email,
-          password: signUpData.password
-        }),
-      })
+      const { error } = await signUp(signUpData.email, signUpData.password)
 
-      const data = await response.json()
-
-      if (response.ok) {
-        // Store tokens in localStorage
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('refreshToken', data.refreshToken)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        
-        // Redirect to profile
-        router.push('/profile')
+      if (error) {
+        alert(error.message || 'Registration failed')
       } else {
-        alert(data.error || 'Registration failed')
+        alert('Registration successful! Please check your email to confirm your account.')
+        // Don't redirect immediately - user needs to confirm email first
       }
     } catch (error) {
       console.error('Registration error:', error)
