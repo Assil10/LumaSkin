@@ -145,10 +145,10 @@ export default function AISkinAnalysisPage() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             AI Skin Analysis
           </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Get personalized skin condition insights and product recommendations powered by advanced AI
-        </p>
-      </div>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Get personalized skin condition insights and product recommendations powered by advanced AI
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Image Upload & Camera Section */}
