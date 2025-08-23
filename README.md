@@ -13,22 +13,16 @@
 <div align="center">
 
 ### **🏠 Homepage - Welcome to LumaSkin**
-![Homepage](screenshots/homepage.png)
+![Homepage](screenshots/home%20page.png)
 
 ### **🤖 AI Skin Analysis - Upload & Get Results**
-![AI Analysis](screenshots/ai-analysis.png)
-
-### **🛍️ Products - Discover Skincare Solutions**
-![Products](screenshots/products.png)
+![AI Analysis](screenshots/skin%20analysis.png)
 
 ### **👤 User Profile - Track Your Journey**
 ![Profile](screenshots/profile.png)
 
-### **🧭 Dynamic Navigation - Smart User Menu**
-![Navigation](screenshots/navigation.png)
-
 ### **🔐 Authentication - Secure User Management**
-![Authentication](screenshots/auth.png)
+![Sign Up](screenshots/signup.png)
 
 </div>
 
