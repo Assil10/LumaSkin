@@ -6,6 +6,32 @@
 
 **Revolutionary skincare analysis powered by AI, featuring real-time skin condition detection and personalized product recommendations.**
 
+</div>
+
+## 📸 **Platform Screenshots**
+
+<div align="center">
+
+### **🏠 Homepage - Welcome to LumaSkin**
+![Homepage](screenshots/homepage.png)
+
+### **🤖 AI Skin Analysis - Upload & Get Results**
+![AI Analysis](screenshots/ai-analysis.png)
+
+### **🛍️ Products - Discover Skincare Solutions**
+![Products](screenshots/products.png)
+
+### **👤 User Profile - Track Your Journey**
+![Profile](screenshots/profile.png)
+
+### **🧭 Dynamic Navigation - Smart User Menu**
+![Navigation](screenshots/navigation.png)
+
+### **🔐 Authentication - Secure User Management**
+![Authentication](screenshots/auth.png)
+
+</div>
+
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-green?logo=supabase)](https://supabase.com/)

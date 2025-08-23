@@ -96,3 +96,10 @@ ai-service/.Python
 ai-service/env/
 ai-service/pip-log.txt
 ai-service/pip-delete-this-directory.txt
+
+# Screenshots (allow PNG files but ignore other formats)
+screenshots/*.jpg
+screenshots/*.jpeg
+screenshots/*.gif
+screenshots/*.bmp
+screenshots/*.tiff
