@@ -141,7 +141,7 @@ export default function HomePage() {
           <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
             Join thousands of users who have improved their skin health with AI-powered insights
           </p>
-          <Link href="/analyze">
+          <Link href="/ai-skin-analysis">
             <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-4">
               Start Your Analysis Now
             </Button>
@@ -170,7 +170,7 @@ export default function HomePage() {
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/analyze" className="hover:text-white">Skin Analysis</Link></li>
+                <li><Link href="/ai-skin-analysis" className="hover:text-white">Skin Analysis</Link></li>
                 <li><Link href="/products" className="hover:text-white">Product Finder</Link></li>
                 <li><Link href="/profile" className="hover:text-white">Profile</Link></li>
               </ul>
